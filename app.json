@@ -12,6 +12,13 @@
       "ios",
       "android",
       "web"
-    ]
+    ],
+    "ios": {
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      }
+    }
   }
 }

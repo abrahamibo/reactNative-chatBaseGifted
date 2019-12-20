@@ -9,14 +9,23 @@
   },
   "dependencies": {
     "expo": "~36.0.0",
+    "expo-av": "^8.0.0",
+    "expo-image-picker": "^8.0.1",
+    "expo-permissions": "^8.0.0",
+    "moment": "^2.24.0",
     "react": "~16.9.0",
     "react-dom": "~16.9.0",
     "react-native": "~0.61.4",
     "react-native-gesture-handler": "~1.5.0",
+    "react-native-gifted-chat": "^0.13.0",
     "react-native-reanimated": "~1.4.0",
-    "react-native-screens": "~2.0.0-alpha.12",
+    "react-native-safe-area": "^0.5.1",
+    "react-native-safe-area-context": "^0.6.1",
+    "react-native-safe-area-view": "^1.0.0",
+    "react-native-screens": "^2.0.0-alpha.20",
     "react-native-unimodules": "~0.7.0",
-    "react-native-web": "~0.11.7"
+    "react-native-web": "~0.11.7",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@babel/core": "~7.6.0",

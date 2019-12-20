@@ -1,0 +1,9 @@
+{
+  "expoServerPort": 19000,
+  "expoServerNgrokUrl": "https://dv-cxp.anonymous.chatbygifted.exp.direct",
+  "packagerNgrokUrl": "https://packager.dv-cxp.anonymous.chatbygifted.exp.direct",
+  "ngrokPid": 13397,
+  "devToolsPort": 19002,
+  "packagerPort": 19003,
+  "packagerPid": 13380
+}
