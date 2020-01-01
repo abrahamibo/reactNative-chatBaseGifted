@@ -1,17 +1,18 @@
-import React, {Component} from 'react'
+import React, {Component, useState} from 'react'
 import {Bubble, Composer, GiftedChat, Send} from 'react-native-gifted-chat'
 import {Image, KeyboardAvoidingView, Text, View,TouchableOpacity} from "react-native";
-import InputToolbar from "../Chat/InputToolbar/InputToolbar";
+import InputToolbar from "../../components/Chat/InputToolbar/InputToolbar";
 import colors from "../../styles/core/colors.styles";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
 import {Audio, Video} from 'expo-av';
 
-import {DisplayModalImage} from "../Chat/ModalImage/ModalImage";
+import {ModalMedia} from "../../components/Chat/ModalMedia/ModalMedia";
 import SafeAreaView from 'react-native-safe-area-view';
 import moment from "moment";
 import uuid from "uuid/v4";
 import messages from "./messageFake";
+import CameraScene from "../../components/Chat/Camera/CameraScene/CameraScene";
 
 Audio.setAudioModeAsync({
     allowsRecordingIOS: true,
@@ -22,14 +23,16 @@ Audio.setAudioModeAsync({
     shouldDuckAndroid:true,
     playThroughEarpieceAndroid:false
 });
-export default class ChatScene extends Component {
+
+export default class ChatScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
             messages: [],
             modalVisible:false,
-            imgSource:null,
-            imageUri:null,
+            mediaSource:null,
+            mediaUri:null,
+            mediaType:null,
             isEnableMic: false,
             loadUpload:false,
             recording:null,
@@ -39,7 +42,8 @@ export default class ChatScene extends Component {
             playAudio:false,
             progress:0,
             size:70,
-            recEnd:false
+            recEnd:false,
+            cameraOn:false,
         };
     }
 
@@ -58,7 +62,7 @@ export default class ChatScene extends Component {
     };
     getPermissionAsync = async () => {
         // if (Constants.platform.ios) {
-        const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+        const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL, Permissions.CAMERA);
         if (status !== 'granted') {
             alert('Sorry, we need camera roll permissions to make this work!');
             // }
@@ -66,12 +70,8 @@ export default class ChatScene extends Component {
     };
 
 
-    onSend(messages = []) {
-        this.setState(previousState => ({
-            messages: GiftedChat.append(previousState.messages, messages),
-        }))
-    }
-    _pickImage = async (type) => {
+
+    /*onPicture = async (type) => {
         let result;
         if (type == 'photo'){
             result = await ImagePicker.launchCameraAsync({
@@ -94,8 +94,8 @@ export default class ChatScene extends Component {
                 .then((response) => response.blob())
                 .then((response) => {
                     this.setState({
-                        imgSource: response,
-                        imageUri: result.uri,
+                        mediaSource: response,
+                        mediaUri: result.uri,
                         modalVisible:true
                     });
                 })
@@ -103,6 +103,7 @@ export default class ChatScene extends Component {
 
         }
     };
+
     _mic = async (type) => {
         if (type === "open") {
             this.setState({
@@ -123,7 +124,6 @@ export default class ChatScene extends Component {
             })
         }
     }
-
     _MicIn = async (type) => {
 
         try {
@@ -142,7 +142,7 @@ export default class ChatScene extends Component {
         }
     };
     _MicOut = async (type) => {
-       let result = await this.state.recording.stopAndUnloadAsync();
+        let result = await this.state.recording.stopAndUnloadAsync();
         let url = await this.state.recording.getURI();
         // console.log(url,'urlurl');
         // console.log(result,'urlurl');
@@ -158,7 +158,7 @@ export default class ChatScene extends Component {
             })
         ;
 
-    };
+    };*/
     _MicPlay = async () => {
         let url = await this.state.recording.getURI();
         try {
@@ -176,17 +176,22 @@ export default class ChatScene extends Component {
             // An error occurred!
         }
     };
-
+    onSetState = ( states) => {
+        this.setState(states)
+    }
 
     renderInputToolbar = props => <InputToolbar {...props}
-                                                onPickImage={() => this._pickImage('photo')}
-                                                onPickPicture={() => this._pickImage('image')}
+        // onPicture={this.onPicture}
                                                 onMic={this._mic}
                                                 onMicOut={this._MicOut}
                                                 onMicIn={this._MicIn}
                                                 onMicPlay={this._MicPlay}
                                                 isEnableMic={this.state.isEnableMic}
+                                                recording={this.state.recording}
+                                                sound={this.state.sound}
                                                 recEnd={this.state.recEnd}
+                                                onSetState={this.onSetState}
+                                                onSendMedia={this.onSendMedia}
 
 
     />
@@ -203,8 +208,8 @@ export default class ChatScene extends Component {
                 volume={1.0}
                 isMuted={false}
                 resizeMode="cover"
-                isLooping
-                style={{ width: 300, height: 300 }}
+                useNativeControls={true}
+                style={{ width: 100, height: 100 }}
             />
         );
     };
@@ -311,79 +316,58 @@ export default class ChatScene extends Component {
              )
          }
      };*/
-    onSendImage = (text) => {
-        let message = {
-            _id: uuid(),
-            createdAt: new Date(),
-            user: {
-                _id: 5,
-                name: "black",
-                avatar: () => (
-                    <Image
-                        style={{
-                            width: 20,
-                            height: 20,
-                            marginRight: 10.2
-                        }}
-                        source={require('../../../assets/icon/search.png')}
-                    />
-                ),
-            },
-            image: this.state.imageUri,
-        };
-        if (text){
-            message.text= text
-        }
-        message.add = moment(message.createdAt).format('LLLL');
-        message.add = moment(message.createdAt).format('LLLL');
-        let messages = [message];
+    onSend(messages = []) {
         this.setState(previousState => ({
             messages: GiftedChat.append(previousState.messages, messages),
-            imgSource:null,
-            imageUri:null,
-            modalVisible:false,
-            loadUpload: false
-        }))
-    };
-    onSendAudio = (text) => {
-        let message = {
-            _id: uuid(),
-            createdAt: new Date(),
-            user: {
-                _id: 5,
-                name: "black",
-                avatar: () => (
-                    <Image
-                        style={{
-                            width: 20,
-                            height: 20,
-                            marginRight: 10.2
-                        }}
-                        source={require('../../../assets/icon/search.png')}
-                    />
-                ),
-            },
-            audio: this.state.audioUri,
-        };
-        if (text){
-            message.text= text
-        }
-        message.add = moment(message.createdAt).format('LLLL');
-        message.add = moment(message.createdAt).format('LLLL');
-        let messages = [message];
-        this.setState(previousState => ({
-            messages: GiftedChat.append(previousState.messages, messages),
-            imgSource:null,
-            imageUri:null,
-            modalVisible:false,
-            loadUpload: false
-        }))
-    };
-    onCloseModal = () => {
-        this.setState(previousState => ({
-            modalVisible:false,
         }))
     }
+    onSendMedia = (text, type) => {
+        console.log(this.state.mediaUri);
+        let message = {
+            _id: uuid(),
+            createdAt: new Date(),
+            user: {
+                _id: 5,
+                name: "black",
+                avatar: () => (
+                    <Image
+                        style={{
+                            width: 20,
+                            height: 20,
+                            marginRight: 10.2
+                        }}
+                        source={require('../../../assets/icon/search.png')}
+                    />
+                ),
+            },
+
+        };
+        if (text){
+            message.text= text
+        }
+        switch (type) {
+            case 'image':
+                message.image = this.state.mediaUri;
+                break;
+            case 'audio':
+                message.audio = this.state.mediaUri;
+                break;
+            case 'video':
+                message.video = this.state.mediaUri;
+                break;
+        }
+        message.add = moment(message.createdAt).format('LLLL');
+        let messages = [message];
+        console.log(messages);
+        this.setState(previousState => ({
+            messages: GiftedChat.append(previousState.messages, messages),
+            mediaSource:null,
+            mediaUri:null,
+            modalVisible:false,
+            loadUpload: false
+        }))
+    };
+
     renderName = props => {
         // const { user: self } = this.props; // where your user data is stored;
         // const { user = {} } = props.currentMessage;
@@ -405,7 +389,7 @@ export default class ChatScene extends Component {
             </View>
         );
     };
-    _onPlaybackStatusUpdate = playbackStatus => {
+    onPlaybackStatusUpdate = playbackStatus => {
 
         if (!playbackStatus.isLoaded) {
             // Update your UI for the unloaded state
@@ -450,52 +434,36 @@ export default class ChatScene extends Component {
             }
         }
     };
+    onPlayAudio = async (props) => {
+        this.setState({
+            playAudio: true
+        });
+        let status = await this.state.sound.getStatusAsync();
 
+        if (status.isLoaded){
+            await this.state.sound.stopAsync();
+            await this.state.sound.unloadAsync();
+        }
+        await this.state.sound.loadAsync({uri:props.currentMessage.audio});
+        this.state.sound.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate);
+
+        try {
+            await this.state.sound.playAsync();
+            this.setState({ playAudio: false });
+        } catch (error) {
+            // An error occurred!
+        }
+    }
     renderAudio = (props) => {
+        // console.log(props.currentMessage);
         return !props.currentMessage.audio ? (
             <View />
         ) : (
-            <TouchableOpacity transparent onPress={ async () => {
-                this.setState({
-                    playAudio: true
-                });
-                // const soundObject = new Audio.Sound();
-
-                // soundObject.createAsync(props.currentMessage.audio, {}, function (e) {
-                //     console.log(e);
-                // } , false);
-                this.state.sound
-                    await this.state.sound.loadAsync({uri:props.currentMessage.audio});
-                let status =  await this.state.sound.getStatusAsync();
-                // console.log(this.state.sound,'lllllll');
-                this.state.sound.setOnPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
-                // soundObject.setStatusAsync()
-
-                try {
-                    await this.state.sound.playAsync();
-
-                    // console.log(status);
-                    this.setState({ playAudio: false });
-                    // Your sound is playing!
-                } catch (error) {
-                    // An error occurred!
-                }
-                /*const sound = new Sound(props.currentMessage.audio, "", error => {
-                    if (error) {
-                        console.log("failed to load the sound", error);
-                    }
-                    this.setState({ playAudio: false });
-                    sound.play(success => {
-                        console.log(success, "success play");
-                        if (!success) {
-                            Alert.alert("There was an error playing this audio");
-                        }
-                    });
-                });*/
-            }}>
-
-                <Text>plays</Text>
-            </TouchableOpacity>
+            <View style={{padding:10}}>
+                <TouchableOpacity transparent onPress={() => this.onPlayAudio(props)}>
+                    <Text>plays</Text>
+                </TouchableOpacity>
+            </View>
 
         );
     };
@@ -505,56 +473,80 @@ export default class ChatScene extends Component {
                 {this.renderName(props)}
                 {this.renderAudio(props)}
                 <Bubble {...props} />
+                {/*<Bubble {...props} renderCustomView={this.renderAudio} />*/}
             </View>
         );
     };
 
     render() {
         return (
-            <SafeAreaView forceInset={{top: "nevers",bottom:"always"}} style={{ flex: 1}}>
-                <DisplayModalImage
+            <SafeAreaView forceInset={{top: "always",bottom:"always"}} style={{ flex: 1}}>
+                <ModalMedia
                     modalVisible={this.state.modalVisible}
-                    uri={this.state.imageUri}
-                    onSendImage={this.onSendImage}
+                    mediaUri={this.state.mediaUri}
+                    mediaType={this.state.mediaType}
+                    onSendMedia={this.onSendMedia}
+                    onSetState={this.onSetState}
                     loadUpload={this.state.loadUpload}
-                    onClose={this.onCloseModal}
                 />
-                <KeyboardAvoidingView
-                    style={{
-                        flex: 1,
-                        backgroundColor: '#fff',
-                        padding:10}}
-                    contentContainerStyle={{justifyContent:'center', alignItems:'center'}}
-                    // behavior="padding"
-                    // keyboardVerticalOffset={150}
-                >
 
-                    <GiftedChat
-                        messages={this.state.messages}
-                        onSend={messages => this.onSend(messages)}
-                        renderInputToolbar={this.renderInputToolbar}
-                        renderBubble={this.renderBubble}
-                        maxComposerHeight={50}
-                        // renderMessageVideo={this.renderMessageVideo}
-                        minInputToolbarHeight={this.state.size}
-                        user={{
-                            _id: 5,
-                            name:"black",
-                            avatar: 'https://placeimg.com/140/140/any'
-                            // avatar: () => {
-                            //     return (<Image
-                            //     style={{
-                            //         width: 20,
-                            //         height: 20,
-                            //     }}
-                            //     source={require('../../../assets/icon/search.png')}
-                            // />)},
-                        }}
-                        locale="fr"
-                    />
-                </KeyboardAvoidingView>
+                {this.state.cameraOn
+                    ?
+                    <CameraScene onSetState={this.onSetState}/>
+                    :
+                    <KeyboardAvoidingView
+                        style={{
+                            flex: 1,
+                            backgroundColor: '#fff',
+                            padding:10}}
+                        contentContainerStyle={{justifyContent:'center', alignItems:'center'}}
+                        // behavior="padding"
+                        // keyboardVerticalOffset={150}
+                    >
+                        <GiftedChat
+                            messages={this.state.messages}
+                            onSend={messages => this.onSend(messages)}
+                            renderInputToolbar={this.renderInputToolbar}
+                            renderBubble={this.renderBubble}
+                            maxComposerHeight={50}
+                            renderMessageVideo={this.renderMessageVideo}
+                            minInputToolbarHeight={this.state.size}
+                            user={{
+                                _id: 5,
+                                name:"black",
+                                avatar: 'https://placeimg.com/140/140/any'
+                                // avatar: () => {
+                                //     return (<Image
+                                //     style={{
+                                //         width: 20,
+                                //         height: 20,
+                                //     }}
+                                //     source={require('../../../assets/icon/search.png')}
+                                // />)},
+                            }}
+                            locale="fr"
+                        />
+                    </KeyboardAvoidingView>
+                }
+
+
             </SafeAreaView>
 
         )
     }
+}
+
+function Example() {
+    // Déclaration d'une nouvelle variable d'état, que l'on appellera “count”
+    const [count, setCount] = useState(0);
+    console.log(count)
+    return (
+        <View>
+            <Text>Vous avez cliqué {count} fois</Text>
+            <TouchableOpacity onClick={() => {setCount(count + 1);
+                console.log(count);}}>
+               <Text> Cliquez ici</Text>
+            </TouchableOpacity>
+        </View>
+    );
 }

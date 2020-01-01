@@ -22,6 +22,7 @@ import {
     MaterialCommunityIcons,
     Octicons
 } from '@expo/vector-icons';
+import {Video} from "expo-av";
 
 const landmarkSize = 2;
 
@@ -78,6 +79,9 @@ export default class CameraScreen extends React.Component {
             pictureSizeId: 0,
             showGallery: false,
             showMoreOptions: false,
+            record:false,
+            videoUri:null,
+            // video:null
         };
     }
 
@@ -86,9 +90,7 @@ export default class CameraScreen extends React.Component {
 
     async componentDidMount() {
         const { status } = await Permissions.askAsync(Permissions.CAMERA);
-        console.log(status);
         const  status2  = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-        console.log(status2);
 
         this.setState({ permissionsGranted: status === 'granted' });
 
@@ -126,31 +128,124 @@ export default class CameraScreen extends React.Component {
 
     toggleFaceDetection = () => this.setState({ faceDetecting: !this.state.faceDetecting });
 
-    takePicture2 = async () => {
-        if (this.camera) {
-            let photo = await this.camera.takePictureAsync({ onPictureSaved: this.onPictureSaved });
-            console.log(photo);
-            // console.log({ uri, width, height, exif, base64 });
-        }
-    };
 
-     takePicture = async() => {
-        if (this.camera) {
-            const options = { quality: 0.5, base64: true };
-            const data = await this.camera.takePictureAsync(options)
-                .then(data => {
-                    console.log('data uri:' + data.uri);
+    takePicture = async() => {
+        // if (this.camera) {
+        //     const options = { quality: 0.5, base64: true, /*onPictureSaved: this.onPictureSaved*/ };
+        //     const data = await this.camera.takePictureAsync(options)
+        //         .then(data => {
+        //             console.log('data uri:' + data);
+        //
+        //         });
+        // }
 
-                });
+        // if (this.state.record){
+        //     await this.camera.stopRecording()
+        //
+        //     this.setState({
+        //         record:false
+        //     })
+        // }else {
+        let video = await this.camera.recordAsync().then((data) =>{
             console.log(data);
-        }
+            this.setState({
+                videoUri:data.uri
+            })
+        });
+        console.log(video);
+
+        this.setState({
+            record:true
+        })
+        // }
+    };
+    takePicture2 = async() => {
+        // if (this.camera) {
+        //     const options = { quality: 0.5, base64: true, /*onPictureSaved: this.onPictureSaved*/ };
+        //     const data = await this.camera.takePictureAsync(options)
+        //         .then(data => {
+        //             console.log('data uri:' + data);
+        //
+        //         });
+        // }
+
+        // if (this.state.record){
+        this.camera.stopRecording();
+
+        /*this.setState({
+            record:false
+        })*/
+        // }else {
+        //     let video = await this.camera.recordAsync().then((data) =>{
+        //         console.log(data);
+        //     });
+        //     console.log(video);
+        //
+        //     this.setState({
+        //         record:true
+        //     })
+        // }
+    };
+    takePicturePl = () => {
+        // if (this.camera) {
+        //     const options = { quality: 0.5, base64: true, /*onPictureSaved: this.onPictureSaved*/ };
+        //     const data = await this.camera.takePictureAsync(options)
+        //         .then(data => {
+        //             console.log('data uri:' + data);
+        //
+        //         });
+        // }
+
+        // if (this.state.record){
+        console.log(this.camera.resumePreview());
+
+        /* this.setState({
+             record:false
+         })*/
+        // }else {f
+        //     let video = await this.camera.recordAsync().then((data) =>{
+        //         console.log(data);
+        //     });
+        //     console.log(video);
+        //
+        //     this.setState({
+        //         record:true
+        //     })
+        // }
+    };
+    takePictureSp = async() => {
+        // if (this.camera) {
+        //     const options = { quality: 0.5, base64: true, /*onPictureSaved: this.onPictureSaved*/ };
+        //     const data = await this.camera.takePictureAsync(options)
+        //         .then(data => {
+        //             console.log('data uri:' + data);
+        //
+        //         });
+        // }
+
+        // if (this.state.record){
+        console.log(this.camera.pausePreview());
+
+        this.setState({
+            record:false
+        })
+        // }else {
+        //     let video = await this.camera.recordAsync().then((data) =>{
+        //         console.log(data);
+        //     });
+        //     console.log(video);
+        //
+        //     this.setState({
+        //         record:true
+        //     })
+        // }
     };
 
     handleMountError = ({ message }) => console.error(message);
 
     onPictureSaved = async photo => {
-        console.log(FileSystem);
-        console.log(photo);
+        // console.log(FileSystem);
+        // console.log(photo);
         await FileSystem.moveAsync({
             from: photo.uri,
             to: `${FileSystem.documentDirectory}photos/${Date.now()}.jpg`,
@@ -295,14 +390,33 @@ export default class CameraScreen extends React.Component {
             <TouchableOpacity style={styles.bottomButton} onPress={this.toggleMoreOptions}>
                 <Octicons name="kebab-horizontal" size={30} color="white"/>
             </TouchableOpacity>
-            <View style={{ flex: 0.4 }}>
+            <View style={{ flex: 0.4, flexDirection:'row' }}>
                 <TouchableOpacity
                     onPress={this.takePicture}
                     style={{ alignSelf: 'center' }}
                 >
                     <Ionicons name="ios-radio-button-on" size={70} color="white" />
                 </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={this.takePicture2}
+                    style={{ alignSelf: 'center' }}
+                >
+                    <Ionicons name="ios-radio-button-on" size={70} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={this.takePicturePl}
+                    style={{ alignSelf: 'center' }}
+                >
+                    <Ionicons name="ios-radio-button-on" size={70} color="red" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={this.takePictureSp}
+                    style={{ alignSelf: 'center' }}
+                >
+                    <Ionicons name="ios-radio-button-on" size={70} color="red" />
+                </TouchableOpacity>
             </View>
+
             <TouchableOpacity style={styles.bottomButton} onPress={this.toggleView}>
                 <View>
                     <Foundation name="thumbnails" size={30} color="white" />
@@ -340,9 +454,31 @@ export default class CameraScreen extends React.Component {
             </View>
         );
 
-    renderCamera = () =>
-        (
-            <View style={{ flex: 1 }}>
+    renderCamera = () => {
+let data;
+        if (this.state.videoUri) {
+            data= (<Video
+                source={{uri: this.state.videoUri}}
+                rate={1.0}
+                volume={1.0}
+                isMuted={false}
+                resizeMode="cover"
+                isLooping
+                style={{
+                    width: 300,
+                    height: 300
+                }}
+                ref={ref => {
+                    this.video = ref;
+                }}
+            />)
+            console.log(this.video);
+            setTimeout(()=>{
+                this.playV()
+            },3000)
+        }else{
+            data = (<View style={{ flex: 1 }}>
+
                 <Camera
                     ref={ref => {
                         this.camera = ref;
@@ -373,8 +509,14 @@ export default class CameraScreen extends React.Component {
                 {this.state.faceDetecting && this.renderFaces()}
                 {this.state.faceDetecting && this.renderLandmarks()}
                 {this.state.showMoreOptions && this.renderMoreOptions()}
-            </View>
-        );
+            </View>)
+        }
+
+        return data
+    }
+    async playV(){
+       await this.video.playAsync()
+    }
 
     render() {
         const cameraScreenContent = this.state.permissionsGranted

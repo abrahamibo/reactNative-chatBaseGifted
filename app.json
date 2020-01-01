@@ -3,7 +3,7 @@
   "displayName": "chat baser sur gifted-chat",
   "expo": {
     "name": "chatBygifted",
-    "slug": "expo-template-bare",
+    "slug": "chatBygifted",
     "privacy": "unlisted",
     "sdkVersion": "36.0.0",
     "version": "1.0.0",
@@ -19,6 +19,10 @@
           "audio"
         ]
       }
+    },
+    "android": {
+      "package": "com.chatbygifted",
+      "googleServicesFile": "google-services.json"
     }
   }
 }

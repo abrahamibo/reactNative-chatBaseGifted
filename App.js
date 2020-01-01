@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
 
-import ChatScene from "./src/components/ChatScene/ChatScene";
+import ChatScreen from "./src/screen/ChatScreen/ChatScreen";
 import {SafeAreaProvider} from "react-native-safe-area-context";
+import GoogleApp from "./google";
 
 
 const instructions = Platform.select({
@@ -15,7 +16,13 @@ export default class App extends Component {
   render() {
     return (
         <SafeAreaProvider>
-          <ChatScene />
+          {false ?
+              <View style={{flex:1}}>
+                <AuthScreen />
+                <GoogleApp />
+              </View> : <
+                ChatScreen />
+          }
         </SafeAreaProvider>
     );
   }
