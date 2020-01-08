@@ -8,8 +8,15 @@ const styles = StyleSheet.create({
     },
     camera: {
         flex: 1,
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
     },
+    noPermissions: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 10,
+    },
+    noPermissionsText: { color: 'white' }
 })
 
 export default styles

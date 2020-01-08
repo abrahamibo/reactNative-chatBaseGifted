@@ -108,15 +108,11 @@ export default class CameraScreen extends React.Component {
 
     toggleMoreOptions = () => this.setState({ showMoreOptions: !this.state.showMoreOptions });
 
-    toggleFacing = () => this.setState({ type: this.state.type === 'back' ? 'front' : 'back' });
 
-    toggleFlash = () => this.setState({ flash: flashModeOrder[this.state.flash] });
 
     setRatio = ratio => this.setState({ ratio });
 
-    toggleWB = () => this.setState({ whiteBalance: wbOrder[this.state.whiteBalance] });
 
-    toggleFocus = () => this.setState({ autoFocus: this.state.autoFocus === 'on' ? 'off' : 'on' });
 
     zoomOut = () => this.setState({ zoom: this.state.zoom - 0.1 < 0 ? 0 : this.state.zoom - 0.1 });
 
@@ -506,7 +502,7 @@ let data;
                     {this.renderTopBar()}
                     {this.renderBottomBar()}
                 </Camera>
-                {this.state.faceDetecting && this.renderFaces()}
+                {!this.state.faceDetecting && this.renderFaces()}
                 {this.state.faceDetecting && this.renderLandmarks()}
                 {this.state.showMoreOptions && this.renderMoreOptions()}
             </View>)

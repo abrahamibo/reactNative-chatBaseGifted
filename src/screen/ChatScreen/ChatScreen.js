@@ -1,18 +1,18 @@
 import React, {Component, useState} from 'react'
-import {Bubble, Composer, GiftedChat, Send} from 'react-native-gifted-chat'
+import {Bubble, GiftedChat} from 'react-native-gifted-chat'
 import {Image, KeyboardAvoidingView, Text, View,TouchableOpacity} from "react-native";
-import InputToolbar from "../../components/Chat/InputToolbar/InputToolbar";
-import colors from "../../styles/core/colors.styles";
-import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
 import {Audio, Video} from 'expo-av';
 
 import {ModalMedia} from "../../components/Chat/ModalMedia/ModalMedia";
 import SafeAreaView from 'react-native-safe-area-view';
-import moment from "moment";
-import uuid from "uuid/v4";
 import messages from "./messageFake";
 import CameraScene from "../../components/Chat/Camera/CameraScene/CameraScene";
+import ToolBarMic from "../../components/Chat/ToolBarMic/ToolBarMic";
+import ToolBar from "../../components/Chat/ToolBar/ToolBar";
+import styles from "./ChatScreen.style";
+import User from "../../store/model/User";
+import Message from "../../store/model/Message";
 
 Audio.setAudioModeAsync({
     allowsRecordingIOS: true,
@@ -29,21 +29,25 @@ export default class ChatScreen extends Component {
         super(props);
         this.state = {
             messages: [],
-            modalVisible:false,
-            mediaSource:null,
-            mediaUri:null,
-            mediaType:null,
+            modalVisible: false,
+            mediaSource: null,
+            mediaUri: null,
+            mediaType: null,
             isEnableMic: false,
-            loadUpload:false,
-            recording:null,
-            audioSource:null,
-            audioUri:null,
-            sound:new Audio.Sound(),
-            playAudio:false,
-            progress:0,
-            size:70,
-            recEnd:false,
-            cameraOn:false,
+            loadUpload: false,
+            recording: null,
+            audioSource: null,
+            audioUri: null,
+            sound: new Audio.Sound(),
+            playAudio: false,
+            progress: 0,
+            size: 70,
+            recEnd: false,
+            cameraOn: false,
+            user: new User({_id: 5,
+                name:"black",
+                avatar: 'https://placeimg.com/140/140/any'
+            })
         };
     }
 
@@ -51,16 +55,16 @@ export default class ChatScreen extends Component {
         this.setState({
             messages: messages,
         })
-        this._askForPermissions();
-        this.getPermissionAsync();
+        this.getCameraPermissionAsync();
+        this.getAudioRecordPermissionAsync();
     }
-    _askForPermissions = async () => {
+    getAudioRecordPermissionAsync = async () => {
         const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
         this.setState({
             haveRecordingPermissions: response.status === 'granted',
         });
     };
-    getPermissionAsync = async () => {
+    getCameraPermissionAsync = async () => {
         // if (Constants.platform.ios) {
         const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL, Permissions.CAMERA);
         if (status !== 'granted') {
@@ -71,130 +75,7 @@ export default class ChatScreen extends Component {
 
 
 
-    /*onPicture = async (type) => {
-        let result;
-        if (type == 'photo'){
-            result = await ImagePicker.launchCameraAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [4, 3],
-            });
-        } else if (type == 'image'){
-            result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [4, 3],
-                base64:true
-            });
-        }
-
-        if (!result.cancelled) {
-
-            fetch(result.uri)
-                .then((response) => response.blob())
-                .then((response) => {
-                    this.setState({
-                        mediaSource: response,
-                        mediaUri: result.uri,
-                        modalVisible:true
-                    });
-                })
-            ;
-
-        }
-    };
-
-    _mic = async (type) => {
-        if (type === "open") {
-            this.setState({
-                isEnableMic: true,
-            });
-        } else if (type === "close") {
-            this.setState({
-                isEnableMic: false,
-                recording:null,
-                recEnd:false
-            })
-        } else if (type === "valider") {
-            this.onSendAudio('test');
-            this.setState({
-                isEnableMic: false,
-                recording:null,
-                recEnd:false
-            })
-        }
-    }
-    _MicIn = async (type) => {
-
-        try {
-            const recording = new Audio.Recording();
-
-            let prepare = await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
-            await recording.startAsync();
-            this.setState({
-                recording:recording,
-            });
-
-            // You are now recording!
-        } catch (error) {
-            // An error occurred!
-            console.log(error);
-        }
-    };
-    _MicOut = async (type) => {
-        let result = await this.state.recording.stopAndUnloadAsync();
-        let url = await this.state.recording.getURI();
-        // console.log(url,'urlurl');
-        // console.log(result,'urlurl');
-        fetch(url)
-            .then((response) => response.blob())
-            .then((response) => {
-                this.setState({
-                    audioSource: response,
-                    audioUri: url,
-                    recEnd:true
-                });
-                // this.uploadAudio('ok')
-            })
-        ;
-
-    };*/
-    _MicPlay = async () => {
-        let url = await this.state.recording.getURI();
-        try {
-            const soundObject = new Audio.Sound();
-            // await soundObject.loadAsync({uri:url});
-            await soundObject.loadAsync({uri:url});
-            await soundObject.playAsync();
-            this.setState({ playAudio: false });
-            // const { sound: soundObject, status } = await Audio.Sound.createAsync(
-            //     {uri:url},
-            //     { shouldPlay: true }
-            // );
-            // Your sound is playing!
-        } catch (error) {
-            // An error occurred!
-        }
-    };
-    onSetState = ( states) => {
-        this.setState(states)
-    }
-
-    renderInputToolbar = props => <InputToolbar {...props}
-        // onPicture={this.onPicture}
-                                                onMic={this._mic}
-                                                onMicOut={this._MicOut}
-                                                onMicIn={this._MicIn}
-                                                onMicPlay={this._MicPlay}
-                                                isEnableMic={this.state.isEnableMic}
-                                                recording={this.state.recording}
-                                                sound={this.state.sound}
-                                                recEnd={this.state.recEnd}
-                                                onSetState={this.onSetState}
-                                                onSendMedia={this.onSendMedia}
-
-
-    />
+    renderInputToolbar = props => <ToolBar {...props} onSetState={this.onSetState} />
     renderMessageVideo = (props) => {
         let i=0,
             ii=0;
@@ -213,161 +94,6 @@ export default class ChatScreen extends Component {
             />
         );
     };
-    /* renderInputToolbar2 = props => {
-         //Add the extra styles via containerStyle
-         if (this.state.isEnableMic){
-             return (
-                 <View style={{
-                     minHeight: 70,
-                     height:'auto',
-                     alignItems:'center',
-                     flexDirection:'row',
-                     backgroundColor: Colors.white,
-                     shadowColor: Colors.black1,
-                     shadowOffset: {
-                         width: 0,
-                         height: 0
-                     },
-                     shadowRadius: 3,
-                     shadowOpacity: 1,
-                     paddingLeft: 15,
-                     paddingRight: 15,
-                     paddingTop:7,
-                     paddingBottom:7
-                 }}>
-                     <Button transparent
-                             onPress={() => this._enabledMic(false)}
-                             style={{marginRight: 20}}>
-                         <Text>
-                             quitter
-                         </Text>
-                     </Button>
-                     <Button transparent
-                             onPressIn={this._MicIn}
-                             onPressOut={this._MicOut}
-                             style={{marginRight: 20}}>
-                         <Text>
-                             rec
-                         </Text>
-                     </Button>
-                     {this.state.recEnd
-                         ?
-                         <View style={{flexDirection: 'row', alignItems:'center'}}>
-                             <Button transparent
-                                     onPress={this._MicPlay}
-                                     style={{marginRight: 18}}>
-                                 <Text>
-                                     plays
-                                 </Text>
-                             </Button>
-                             <Button transparent
-                                     onPress={() => this.uploadAudio()}
-                                     style={{marginRight: 18}}>
-                                 <Text>
-                                     valider
-                                 </Text>
-                             </Button>
-                         </View>
-                         :
-                         null
-                     }
-
-                 </View>
-             )
-         }else {
-             return (
-                 <View style={{
-                     minHeight: 47,
-                     height:'auto',
-                     flexDirection:'row',
-                     alignItems:'center',
-                     backgroundColor: Colors.white,
-                     shadowColor: Colors.black1,
-                     shadowOffset: {
-                         width: 0,
-                         height: 0
-                     },
-                     shadowRadius: 3,
-                     shadowOpacity: 1,
-                     paddingLeft: 15,
-                     paddingRight: 15,
-                     paddingTop:7,
-                     paddingBottom:7
-                 }}>
-                     <Button transparent onPress={() => this._pickImage('photo')}>
-                         <Image source={require('../assets/icon/chats-camera.png')} style={{width:32, height:32, marginRight: 10}}/>
-                     </Button>
-                     {/!*<TextInput style={{minWidth:20,height:'auto', borderTopWidth: 1.5, borderTopColor: '#333', backgroundColor:'blue'}}/>*!/}
-                     <Composer {...props} containerStyle={{borderTopWidth: 1.5, borderTopColor: '#333', backgroundColor:'red'}} Style={{width:150, borderTopColor: '#333', backgroundColor:'red'}} />
-                     <Send
-                         {...props}
-                         label="envoi"
-                         // onSend={messages => this.onSend(messages)}
-                     />
-                     <View style={{height:'auto',flexDirection:'row',alignItems:'center'}}>
-                         <Button transparent onPress={() => this._enabledMic(true)} style={{marginRight: 18}}>
-                             <Image source={require('../assets/icon/chats-micro.png')} style={{width:20, height:20}}/>
-                         </Button>
-                         <Button transparent onPress={() => this._pickImage('image')}>
-                             <Image source={require('../assets/icon/chats-pictures.png')} style={{width:20, height:20}}/>
-                         </Button>
-                     </View>
-                 </View>
-             )
-         }
-     };*/
-    onSend(messages = []) {
-        this.setState(previousState => ({
-            messages: GiftedChat.append(previousState.messages, messages),
-        }))
-    }
-    onSendMedia = (text, type) => {
-        console.log(this.state.mediaUri);
-        let message = {
-            _id: uuid(),
-            createdAt: new Date(),
-            user: {
-                _id: 5,
-                name: "black",
-                avatar: () => (
-                    <Image
-                        style={{
-                            width: 20,
-                            height: 20,
-                            marginRight: 10.2
-                        }}
-                        source={require('../../../assets/icon/search.png')}
-                    />
-                ),
-            },
-
-        };
-        if (text){
-            message.text= text
-        }
-        switch (type) {
-            case 'image':
-                message.image = this.state.mediaUri;
-                break;
-            case 'audio':
-                message.audio = this.state.mediaUri;
-                break;
-            case 'video':
-                message.video = this.state.mediaUri;
-                break;
-        }
-        message.add = moment(message.createdAt).format('LLLL');
-        let messages = [message];
-        console.log(messages);
-        this.setState(previousState => ({
-            messages: GiftedChat.append(previousState.messages, messages),
-            mediaSource:null,
-            mediaUri:null,
-            modalVisible:false,
-            loadUpload: false
-        }))
-    };
-
     renderName = props => {
         // const { user: self } = this.props; // where your user data is stored;
         // const { user = {} } = props.currentMessage;
@@ -388,6 +114,79 @@ export default class ChatScreen extends Component {
                 </Text>
             </View>
         );
+    };
+    renderAudio = (props) => {
+        const { currentMessage } = props;
+        return !currentMessage.audio ? (
+            <View />
+        ) : (
+            <View style={{padding:10}}>
+                <TouchableOpacity transparent onPress={() => this.handlePressPlayAudio(currentMessage.audio)}>
+                    <Text>plays</Text>
+                </TouchableOpacity>
+            </View>
+
+        );
+    };
+    renderBubble = props => {
+        return (
+            <View>
+                {this.renderName(props)}
+                {this.renderAudio(props)}
+                <Bubble {...props} />
+                {/*<Bubble {...props} renderCustomView={this.renderAudio} />*/}
+            </View>
+        );
+    };
+
+    onSend(messages = []) {
+        this.setState(previousState => ({
+            messages: GiftedChat.append(previousState.messages, messages),
+        }))
+    }
+    onSendMedia = (text, type) => {
+        console.log(this.state.mediaUri);
+        let message = new Message({
+            user: {
+                _id: 5,
+                name: "black",
+                avatar: () => (
+                    <Image
+                        style={{
+                            width: 20,
+                            height: 20,
+                            marginRight: 10.2
+                        }}
+                        source={require('../../../assets/icon/search.png')}
+                    />
+                ),
+            },
+
+        });
+        console.log(message);
+        if (text){
+            message.text= text
+        }
+        switch (type) {
+            case 'image':
+                message.image = this.state.mediaUri;
+                break;
+            case 'audio':
+                message.audio = this.state.mediaUri;
+                break;
+            case 'video':
+                message.video = this.state.mediaUri;
+                break;
+        }
+        let messages = [message];
+
+        this.setState(previousState => ({
+            messages: GiftedChat.append(previousState.messages, messages),
+            mediaSource:null,
+            mediaUri:null,
+            modalVisible:false,
+            loadUpload: false
+        }))
     };
     onPlaybackStatusUpdate = playbackStatus => {
 
@@ -434,7 +233,11 @@ export default class ChatScreen extends Component {
             }
         }
     };
-    onPlayAudio = async (props) => {
+    onSetState = ( states) => {
+        this.setState(states)
+    }
+
+    handlePressPlayAudio = async (url) => {
         this.setState({
             playAudio: true
         });
@@ -444,7 +247,8 @@ export default class ChatScreen extends Component {
             await this.state.sound.stopAsync();
             await this.state.sound.unloadAsync();
         }
-        await this.state.sound.loadAsync({uri:props.currentMessage.audio});
+        console.log(url);
+        await this.state.sound.loadAsync({uri:url});
         this.state.sound.setOnPlaybackStatusUpdate(this.onPlaybackStatusUpdate);
 
         try {
@@ -454,29 +258,7 @@ export default class ChatScreen extends Component {
             // An error occurred!
         }
     }
-    renderAudio = (props) => {
-        // console.log(props.currentMessage);
-        return !props.currentMessage.audio ? (
-            <View />
-        ) : (
-            <View style={{padding:10}}>
-                <TouchableOpacity transparent onPress={() => this.onPlayAudio(props)}>
-                    <Text>plays</Text>
-                </TouchableOpacity>
-            </View>
 
-        );
-    };
-    renderBubble = props => {
-        return (
-            <View>
-                {this.renderName(props)}
-                {this.renderAudio(props)}
-                <Bubble {...props} />
-                {/*<Bubble {...props} renderCustomView={this.renderAudio} />*/}
-            </View>
-        );
-    };
 
     render() {
         return (
@@ -495,13 +277,8 @@ export default class ChatScreen extends Component {
                     <CameraScene onSetState={this.onSetState}/>
                     :
                     <KeyboardAvoidingView
-                        style={{
-                            flex: 1,
-                            backgroundColor: '#fff',
-                            padding:10}}
-                        contentContainerStyle={{justifyContent:'center', alignItems:'center'}}
-                        // behavior="padding"
-                        // keyboardVerticalOffset={150}
+                        style={styles.container}
+                        contentContainerStyle={styles.contentContainer}
                     >
                         <GiftedChat
                             messages={this.state.messages}
@@ -510,7 +287,6 @@ export default class ChatScreen extends Component {
                             renderBubble={this.renderBubble}
                             maxComposerHeight={50}
                             renderMessageVideo={this.renderMessageVideo}
-                            minInputToolbarHeight={this.state.size}
                             user={{
                                 _id: 5,
                                 name:"black",
@@ -526,6 +302,17 @@ export default class ChatScreen extends Component {
                             }}
                             locale="fr"
                         />
+                        {this.state.isEnableMic &&
+
+                        <ToolBarMic
+                            onSendMedia={this.onSendMedia}
+                            recording={this.state.recording}
+                            sound={this.state.sound}
+                            recEnd={this.state.recEnd}
+                            onSetState={this.onSetState}
+                            onPlayAudio={this.handlePressPlayAudio}
+                        />
+                        }
                     </KeyboardAvoidingView>
                 }
 

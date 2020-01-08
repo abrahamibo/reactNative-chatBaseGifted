@@ -4,6 +4,10 @@ import styles from "../ToolBar/ToolBar.style";
 import core from "../../../styles/core.styles";
 import {Composer, Send} from "react-native-gifted-chat";
 import * as ImagePicker from "expo-image-picker";
+import {
+    Ionicons,
+    MaterialIcons
+} from "@expo/vector-icons";
 
 
 
@@ -15,24 +19,18 @@ export default class ToolBar extends Component {
     onMedia = async (type, onState) => {
         let result;
         if (type == 'photo'){
-            // result = await ImagePicker.launchCameraAsync({
-            //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            //     allowsEditing: true,
-            //     aspect: [4, 3],
-            // });
             onState({
-                cameraOn:true
+                cameraOn: true
             })
         } else if (type == 'image'){
             result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.All,
                 allowsEditing: true,
                 aspect: [4, 3],
-                base64:false
+                base64: false
             });
 
             if (!result.cancelled) {
-                console.log(result);
                 fetch(result.uri)
                     .then((response) => response.blob())
                     .then((response) => {
@@ -43,8 +41,6 @@ export default class ToolBar extends Component {
                             modalVisible:true
                         })
                     })
-                ;
-
             }
         }
 
@@ -52,41 +48,27 @@ export default class ToolBar extends Component {
     };
 
     render() {
-        const { onSetState, onMic } = this.props;
+        const { onSetState } = this.props;
 
         return (
             <View style={styles.container}>
-
-                <TouchableOpacity transparent onPress={() => this.onMedia('photo', onSetState)}>
-                    <Image source={require('../../../../assets/icon/cam.png')} style={{
-                        width: 32,
-                        height: 32,
-                        marginRight: 10
-                    }}/>
-                </TouchableOpacity>
-                <Composer {...this.props} containerStyle={styles.containerInputText} Style={styles.inputText}/>
-                <Send
-                    {...this.props}
-                    label="envoi"
-                    // onSend={messages => this.onSend(messages)}
-                />
-                <View style={{
-                    flexDirection:'row',
-                    justifyContent:'space-between'
-                }}>
+                <View style={styles.toolLeft}>
+                    <TouchableOpacity transparent onPress={() => this.onMedia('photo', onSetState)}>
+                        <Ionicons name="ios-camera" size={40} color="#1157ff"/>
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.toolInputText}>
+                    <Composer {...this.props}/>
+                    <Send {...this.props} containerStyle={styles.send}>
+                        <Ionicons name="md-send" size={30} color="#1157ff"/>
+                    </Send>
+                </View>
+                <View style={styles.toolRight}>
                     <TouchableOpacity transparent onPress={() => this.onMedia('image', onSetState)}>
-                        <Image source={require('../../../../assets/icon/picture.png')} style={{
-                            width: 32,
-                            height: 32,
-                            marginRight: 10
-                        }}/>
+                        <Ionicons name="md-images" size={30} color="#1157ff"/>
                     </TouchableOpacity>
                     <TouchableOpacity transparent onPress={() => onSetState({isEnableMic: true})}>
-                        <Image source={require('../../../../assets/icon/mic.png')} style={{
-                            width: 32,
-                            height: 32,
-                            marginRight: 10
-                        }}/>
+                        <Ionicons name="md-mic" size={30} color="#1157ff"/>
                     </TouchableOpacity>
                 </View>
             </View>

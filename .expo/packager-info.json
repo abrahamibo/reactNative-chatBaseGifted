@@ -2,9 +2,9 @@
   "expoServerPort": 19000,
   "expoServerNgrokUrl": "https://dv-cxp.abrahamibo.chatbygifted.exp.direct",
   "packagerNgrokUrl": "https://packager.dv-cxp.abrahamibo.chatbygifted.exp.direct",
-  "ngrokPid": 78700,
+  "ngrokPid": 3537,
   "devToolsPort": 19002,
   "packagerPort": 19001,
-  "packagerPid": 78689,
+  "packagerPid": 3521,
   "webpackServerPort": null
 }

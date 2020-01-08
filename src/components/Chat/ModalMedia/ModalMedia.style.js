@@ -3,34 +3,56 @@ import core from "../../../styles/core.styles";
 
 
 const styles = StyleSheet.create({
-    container:{
-        minHeight: 47,
-        height:'auto',
-        flexDirection:'row',
+    styelcontainer:{
+        flex: 1,
+        backgroundColor: '#232323',
         alignItems:'center',
+        justifyContent:'center'
+    },
+    buttonBack: {
+        position: 'absolute',
+        left: 15,
+        top: 0,
+        zIndex: 999
+    },
+    image: {
+        height: "100%",
+        width: "100%",
+        maxWidth: 'auto',
+        maxHeight: 'auto'
+    },
+    imageBackground: {
+        height: "100%",
+        width: "100%",
+        maxWidth: 'auto',
+        maxHeight: 'auto'
+    },
+    video: {
+        width: 300,
+        height: 300
+    },
+    inputTextContainer:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent:'center',
+        width: '90%',
+        height: 'auto',
+        minHeight: 50,
+        borderRadius: 12,
+        borderWidth: 1,
+        paddingLeft:10,
+        paddingRight:10,
+        borderColor: core.colors.white,
         backgroundColor: core.colors.white,
-        shadowColor: core.colors.white,
-        shadowOffset: {
-            width: 0,
-            height: 0
-        },
-        shadowRadius: 3,
-        shadowOpacity: 1,
-        paddingLeft: 15,
-        paddingRight: 15,
-        paddingTop:7,
-        paddingBottom:7
+        position: 'absolute',
+        bottom: 10,
+        zIndex:999
     },
-    containerInputText: {
-        borderTopWidth: 1.5,
-        borderTopColor: '#333',
-        backgroundColor: 'red'
-    },
-    inputText: {
-        width: 150,
-        borderTopColor: '#333',
-        backgroundColor: 'red'
+    inputText:{
+        width: '80%',
+        minHeight: 50,
     }
+
 })
 
 export default styles
