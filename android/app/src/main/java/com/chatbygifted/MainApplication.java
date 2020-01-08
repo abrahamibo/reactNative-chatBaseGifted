@@ -20,6 +20,9 @@ import org.unimodules.core.interfaces.SingletonModule;
 import expo.modules.constants.ConstantsPackage;
 import expo.modules.permissions.PermissionsPackage;
 import expo.modules.filesystem.FileSystemPackage;
+import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
+import io.invertase.firebase.RNFirebasePackage;
+import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,10 +43,14 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+          new RNFirebasePackage(),
+          new RNFirebaseAuthPackage(),
+          new ReactNativeFirebaseAppPackage(),
           new ReanimatedPackage(),
           new RNGestureHandlerPackage(),
           new RNScreensPackage(),
           new ModuleRegistryAdapter(mModuleRegistryProvider)
+
       );
     }
 

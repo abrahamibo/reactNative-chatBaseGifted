@@ -14,6 +14,10 @@ import styles from "./ChatScreen.style";
 import User from "../../store/model/User";
 import Message from "../../store/model/Message";
 
+import firebaseApp from '../../network/firebase';
+// import auth, { firebase } from '@react-native-firebase/auth';
+
+
 Audio.setAudioModeAsync({
     allowsRecordingIOS: true,
     interruptionModeIOS:Audio.INTERRUPTION_MODE_IOS_MIX_WITH_OTHERS,
@@ -260,6 +264,17 @@ export default class ChatScreen extends Component {
     }
 
 
+    // async register(email, password) {
+    //     try {
+    //          firebase.auth().createUserWithEmailAndPassword(email, password)
+    //             .then(app => alert(app));
+    //
+    //
+    //     } catch (e) {
+    //         console.error(e.message);
+    //     }
+    // }
+
     render() {
         return (
             <SafeAreaView forceInset={{top: "always",bottom:"always"}} style={{ flex: 1}}>
@@ -315,7 +330,9 @@ export default class ChatScreen extends Component {
                         }
                     </KeyboardAvoidingView>
                 }
-
+                <TouchableOpacity onPress={() => this.register("ibo",'123456789')}>
+                    <Text>tes connecnt</Text>
+                </TouchableOpacity>
 
             </SafeAreaView>
 
@@ -323,17 +340,3 @@ export default class ChatScreen extends Component {
     }
 }
 
-function Example() {
-    // Déclaration d'une nouvelle variable d'état, que l'on appellera “count”
-    const [count, setCount] = useState(0);
-    console.log(count)
-    return (
-        <View>
-            <Text>Vous avez cliqué {count} fois</Text>
-            <TouchableOpacity onClick={() => {setCount(count + 1);
-                console.log(count);}}>
-               <Text> Cliquez ici</Text>
-            </TouchableOpacity>
-        </View>
-    );
-}
