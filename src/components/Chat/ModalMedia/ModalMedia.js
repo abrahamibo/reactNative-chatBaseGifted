@@ -26,7 +26,7 @@ export class ModalMedia extends Component {
         })
     }
     render() {
-        const { onSetState, mediaUri, mediaType, onSendMedia  } =this.props;
+        const { onSetState, mediaUri, mediaType, onUploadMedia  } =this.props;
         return (
             <Modal
                 animationType="slide"
@@ -72,7 +72,7 @@ export class ModalMedia extends Component {
                             onChangeText={(text) => this.setState({text:text})}
                             multiline={false}
                         />
-                        <TouchableOpacity onPress={() => onSendMedia(this.state.text, mediaType)}>
+                        <TouchableOpacity onPress={() => onUploadMedia(this.state.text, mediaType)}>
                             <Ionicons name="md-send" size={30} color="#1157ff"/>
                         </TouchableOpacity>
                     </View>

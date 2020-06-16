@@ -20,7 +20,7 @@ export default class ToolBarMic extends Component {
                 recEnd:false
             })
         } else if (status === "valider") {
-            this.props.onSendMedia(null,'audio');
+            this.props.onUploadMedia(null,'audio');
             setState({
                 isEnableMic: false,
                 recording:null,
@@ -54,6 +54,7 @@ export default class ToolBarMic extends Component {
                 setState({
                     mediaSource: response,
                     mediaUri: url,
+                    mediaType: "audio",
                     recEnd:true
                 });
             })

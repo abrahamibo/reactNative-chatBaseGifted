@@ -3,6 +3,7 @@ import {Bubble, GiftedChat} from 'react-native-gifted-chat'
 import {Image, KeyboardAvoidingView, Text, View,TouchableOpacity} from "react-native";
 import * as Permissions from "expo-permissions";
 import {Audio, Video} from 'expo-av';
+import uuid from "uuid/v4";
 
 import {ModalMedia} from "../../components/Chat/ModalMedia/ModalMedia";
 import SafeAreaView from 'react-native-safe-area-view';
@@ -14,7 +15,8 @@ import styles from "./ChatScreen.style";
 import User from "../../store/model/User";
 import Message from "../../store/model/Message";
 
-import firebaseApp from '../../network/firebase';
+import firebase from '../../network/firebase';
+import moment from "moment";
 // import auth, { firebase } from '@react-native-firebase/auth';
 
 
@@ -56,11 +58,12 @@ export default class ChatScreen extends Component {
     }
 
     componentDidMount() {
-        this.setState({
-            messages: messages,
-        })
+        // this.setState({
+        //     messages: messages,
+        // })
         this.getCameraPermissionAsync();
         this.getAudioRecordPermissionAsync();
+        this.getDataMesage()
     }
     getAudioRecordPermissionAsync = async () => {
         const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
@@ -77,7 +80,172 @@ export default class ChatScreen extends Component {
         }
     };
 
+    getDataMesage = () => {
+        // firebase.database().ref('chat/' + this.props.chats.id).on('value',  (snapshot) => {
+        //     this.setState(previousState => ({
+        //         message: snapshot.val()
+        //     }))
+        //     // console.log(snapshot.val(),'snapshot.val()s');
+        // })
 
+       const chat = firebase.database().ref('chat/' + 1)
+           /*chat.orderByKey().once('value', (snapshot)=> {
+            let messages =[];
+
+            // messages = snapshot.map(node => {
+            //         const message = {};
+            //         message._id = node._id;
+            //         message.text =  node.text ;
+            //         message.createdAt = node.createdAt;
+            //         message.user = {
+            //             _id: node.user._id,
+            //             name: node.user.name,
+            //             avatar: node.user.avatar
+            //         };
+            //
+            //         return message;
+            //     });
+            //     this.setState({
+            //         messages: [...messages]
+            //     });
+
+            snapshot.forEach(function(childSnapshot) {
+                console.log(childSnapshot.val(),'------oo-----');
+                let message = {
+                    _id: childSnapshot.val()[0]._id,
+                    text: childSnapshot.val()[0].text,
+                    createdAt: moment( childSnapshot.val()[0].createdAtAdd,"LLLL"),
+                    // createdAt: ,
+                    user: {
+                        _id: childSnapshot.val()[0].user._id,
+                        name: childSnapshot.val()[0].user.name,
+                        avatar: childSnapshot.val()[0].user.avatar,
+                    },
+                };
+                if (childSnapshot.val()[0].image)
+                    message.image = childSnapshot.val()[0].image
+
+                if (childSnapshot.val()[0].audio)
+                    message.audio = childSnapshot.val()[0].audio
+
+                if (childSnapshot.val()[0].video)
+                    message.audio = childSnapshot.val()[0].video
+
+
+                messages.unshift(message);
+
+            });
+            this.setState(previousState => ({
+                messages: messages
+            }))
+            console.log(this.state.messages,'mmmmmmmesssage');
+        });*/
+        // chat.once('value', (snapshot,e) => {
+        //     console.log(snapshot);
+        //     console.log(e);
+        //     let messages =[];
+        //
+        //     // messages = snapshot.map(node => {
+        //     //         const message = {};
+        //     //         message._id = node._id;
+        //     //         message.text =  node.text ;
+        //     //         message.createdAt = node.createdAt;
+        //     //         message.user = {
+        //     //             _id: node.user._id,
+        //     //             name: node.user.name,
+        //     //             avatar: node.user.avatar
+        //     //         };
+        //     //
+        //     //         return message;
+        //     //     });
+        //     //     this.setState({
+        //     //         messages: [...messages]
+        //     //     });
+        //
+        //    /* snapshot.forEach(function(childSnapshot) {
+        //         console.log(childSnapshot.val(),'------oo-----///');
+        //         // let message = {
+        //         //     _id: childSnapshot.val()[0]._id,
+        //         //     text: childSnapshot.val()[0].text,
+        //         //     createdAt: moment( childSnapshot.val()[0].createdAtAdd,"LLLL"),
+        //         //     // createdAt: ,
+        //         //     user: {
+        //         //         _id: childSnapshot.val()[0].user._id,
+        //         //         name: childSnapshot.val()[0].user.name,
+        //         //         avatar: childSnapshot.val()[0].user.avatar,
+        //         //     },
+        //         // };
+        //         // if (childSnapshot.val()[0].image)
+        //         //     message.image = childSnapshot.val()[0].image
+        //         //
+        //         // if (childSnapshot.val()[0].audio)
+        //         //     message.audio = childSnapshot.val()[0].audio
+        //         //
+        //         // if (childSnapshot.val()[0].video)
+        //         //     message.audio = childSnapshot.val()[0].video
+        //         //
+        //         //
+        //         // messages.unshift(message);
+        //
+        //     });*/
+        //     this.setState(previousState => ({
+        //         messages: messages
+        //     }))
+        // });
+        // chat.limitToLast(1).on('value', (snapshot,e) => {
+        //     console.log(snapshot,"secccc");
+        //     console.log(snapshot.lenght,"eccc");
+        //     let messages =[];
+        //
+        //     // messages = snapshot.map(node => {
+        //     //         const message = {};
+        //     //         message._id = node._id;
+        //     //         message.text =  node.text ;
+        //     //         message.createdAt = node.createdAt;
+        //     //         message.user = {
+        //     //             _id: node.user._id,
+        //     //             name: node.user.name,
+        //     //             avatar: node.user.avatar
+        //     //         };
+        //     //
+        //     //         return message;
+        //     //     });
+        //     //     this.setState({
+        //     //         messages: [...messages]
+        //     //     });
+        //
+        //    /* snapshot.forEach(function(childSnapshot) {
+        //         console.log(childSnapshot.val(),'------oo-----///');
+        //         // let message = {
+        //         //     _id: childSnapshot.val()[0]._id,
+        //         //     text: childSnapshot.val()[0].text,
+        //         //     createdAt: moment( childSnapshot.val()[0].createdAtAdd,"LLLL"),
+        //         //     // createdAt: ,
+        //         //     user: {
+        //         //         _id: childSnapshot.val()[0].user._id,
+        //         //         name: childSnapshot.val()[0].user.name,
+        //         //         avatar: childSnapshot.val()[0].user.avatar,
+        //         //     },
+        //         // };
+        //         // if (childSnapshot.val()[0].image)
+        //         //     message.image = childSnapshot.val()[0].image
+        //         //
+        //         // if (childSnapshot.val()[0].audio)
+        //         //     message.audio = childSnapshot.val()[0].audio
+        //         //
+        //         // if (childSnapshot.val()[0].video)
+        //         //     message.audio = childSnapshot.val()[0].video
+        //         //
+        //         //
+        //         // messages.unshift(message);
+        //
+        //     });*/
+        //     this.setState(previousState => ({
+        //         messages: messages
+        //     }))
+        // });
+
+    };
 
     renderInputToolbar = props => <ToolBar {...props} onSetState={this.onSetState} />
     renderMessageVideo = (props) => {
@@ -143,47 +311,90 @@ export default class ChatScreen extends Component {
         );
     };
 
+
+    onUploadMedia = (text) => {
+        const { mediaSource, mediaUri, mediaType } = this.state
+        const ext = mediaUri.split('.').pop(); // Extract image extension
+        const filename = `${uuid()}.${ext}`;
+        this.setState({ uploading: true });
+        let  uploadTask = firebase
+            .storage()
+            .ref(`chats/1/images/${filename}`)
+            .put(mediaSource);
+
+        uploadTask.on('state_changed',
+            (snapshot)=>{
+                // Observe state change events such as progress, pause, and resume
+                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log('Upload is ' + progress + '% done');
+                switch (snapshot.state) {
+                    case firebase.storage.TaskState.PAUSED: // or 'paused'
+                        console.log('Upload is paused');
+                        break;
+                    case firebase.storage.TaskState.RUNNING: // or 'running'
+                        console.log('Upload is running');
+                        break;
+                }
+            },
+            (error) => {
+                // Handle unsuccessful uploads
+                console.log(error);
+            },
+            ()=> {
+                // Handle successful uploads on complete
+                // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                    console.log(downloadURL);
+                    this.onSendMedia(text,mediaType,downloadURL)
+                });
+            });
+    };
+
     onSend(messages = []) {
+        messages[0].createdAtAdd = moment(messages[0].createdAt).format('LLLL');
+        var db = firebase.firestore();
+        // firebase.database().ref('chat/' + 1).push().set(messages);
+        // db.collection("chat/1").add(messages)
+        //     .then(function(docRef) {
+        //         console.log("Document written with ID: ", docRef.id);
+        //     })
+        //     .catch(function(error) {
+        //         console.error("Error adding document: ", error);
+        //     });
         this.setState(previousState => ({
             messages: GiftedChat.append(previousState.messages, messages),
         }))
     }
-    onSendMedia = (text, type) => {
-        console.log(this.state.mediaUri);
-        let message = new Message({
+
+    onSendMedia = (text = null, type, mediaUri) => {
+        let data = {
             user: {
                 _id: 5,
                 name: "black",
-                avatar: () => (
-                    <Image
-                        style={{
-                            width: 20,
-                            height: 20,
-                            marginRight: 10.2
-                        }}
-                        source={require('../../../assets/icon/search.png')}
-                    />
-                ),
+                avatar: 'https://placeimg.com/140/140/any'
             },
 
-        });
-        console.log(message);
+        };
         if (text){
-            message.text= text
+            data.text= text
         }
+        console.log(type);
         switch (type) {
             case 'image':
-                message.image = this.state.mediaUri;
+                data.image = mediaUri;
                 break;
             case 'audio':
-                message.audio = this.state.mediaUri;
+                data.audio = mediaUri;
                 break;
             case 'video':
-                message.video = this.state.mediaUri;
+                data.video = mediaUri;
                 break;
         }
-        let messages = [message];
-
+        console.log(data);
+        let messages = [new Message(data)];
+        console.log(messages);
+        firebase.database().ref('chat/' + 1).push().set(messages);
         this.setState(previousState => ({
             messages: GiftedChat.append(previousState.messages, messages),
             mediaSource:null,
@@ -282,7 +493,7 @@ export default class ChatScreen extends Component {
                     modalVisible={this.state.modalVisible}
                     mediaUri={this.state.mediaUri}
                     mediaType={this.state.mediaType}
-                    onSendMedia={this.onSendMedia}
+                    onUploadMedia={this.onUploadMedia}
                     onSetState={this.onSetState}
                     loadUpload={this.state.loadUpload}
                 />
@@ -296,11 +507,11 @@ export default class ChatScreen extends Component {
                         contentContainerStyle={styles.contentContainer}
                     >
                         <GiftedChat
+                            locale="fr"
                             messages={this.state.messages}
                             onSend={messages => this.onSend(messages)}
                             renderInputToolbar={this.renderInputToolbar}
                             renderBubble={this.renderBubble}
-                            maxComposerHeight={50}
                             renderMessageVideo={this.renderMessageVideo}
                             user={{
                                 _id: 5,
@@ -315,12 +526,11 @@ export default class ChatScreen extends Component {
                                 //     source={require('../../../assets/icon/search.png')}
                                 // />)},
                             }}
-                            locale="fr"
                         />
                         {this.state.isEnableMic &&
 
                         <ToolBarMic
-                            onSendMedia={this.onSendMedia}
+                            onUploadMedia={this.onUploadMedia}
                             recording={this.state.recording}
                             sound={this.state.sound}
                             recEnd={this.state.recEnd}
@@ -330,9 +540,6 @@ export default class ChatScreen extends Component {
                         }
                     </KeyboardAvoidingView>
                 }
-                <TouchableOpacity onPress={() => this.register("ibo",'123456789')}>
-                    <Text>tes connecnt</Text>
-                </TouchableOpacity>
 
             </SafeAreaView>
 

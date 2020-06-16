@@ -19,10 +19,6 @@
           "audio"
         ]
       }
-    },
-    "android": {
-      "package": "com.chatbygifted",
-      "googleServicesFile": "android/google-services.json"
     }
   }
 }

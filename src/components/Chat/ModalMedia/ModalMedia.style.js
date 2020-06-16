@@ -3,7 +3,7 @@ import core from "../../../styles/core.styles";
 
 
 const styles = StyleSheet.create({
-    styelcontainer:{
+    container:{
         flex: 1,
         backgroundColor: '#232323',
         alignItems:'center',

@@ -51,6 +51,7 @@ export default class BottomBar extends Component{
                     base64: false,
                 };
                 let record;
+                console.log(action);
                 switch (action) {
                     case "recPlay":
                         camera.resumePreview();
@@ -71,6 +72,7 @@ export default class BottomBar extends Component{
                         let video = await camera
                             .recordAsync()
                             .then((data) => {
+                                console.log(data);
                                 fetch(data.uri)
                                     .then((response) => response.blob())
                                     .then((response) => {
@@ -93,6 +95,8 @@ export default class BottomBar extends Component{
         }
     };
     handlePressTakeMediaChoice = (mode) => {
+        const {record} = this.state;
+
         if (mode === "camera" && record) {
             this.handlePressTakeMedia(mode, 'recStop')
         } else {

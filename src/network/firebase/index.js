@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import firebase from 'react-native-firebase';
+import * as firebase from 'firebase';
 
 // pluck values from your `GoogleService-Info.plist` you created on the firebase console
 const iosConfig = {
@@ -29,13 +29,10 @@ const androidConfig = {
     persistence: true,
 };
 
-const firebaseApp = firebase
-    .initializeApp(
+firebase.initializeApp(
         // use platform-specific firebase config
         Platform.OS === 'ios' ? iosConfig : androidConfig,
         // name of this app
-        'chat',
-    )
-    .then(app => console.log('initialized apps ->', firebase.apps));
-
-export default firebaseApp;
+    );
+console.log(firebase);
+export default firebase;

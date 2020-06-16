@@ -17,7 +17,6 @@ class Message {
             this.audio = audio
         if (video)
             this.video = video
-
     }
 
 }

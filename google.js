@@ -3,6 +3,7 @@ import * as Constants from 'expo-constants';
 import * as GoogleSignIn from 'expo-google-sign-in';
 import React from 'react';
 import { Image, StyleSheet, Text, View, Platform, TouchableOpacity } from 'react-native';
+import firebase from "./src/network/Firebase";
 
 // import GoogleSignInButton from './GoogleSignInButton';
 const { OAuthRedirect, URLSchemes } = AppAuth;
@@ -64,6 +65,27 @@ export default class GoogleApp extends React.Component {
     };
 
     signInAsync = async () => {
+        GoogleSignIn.signInAsync()
+            //signIn Google successfully, get idToken and accessToken
+            .then(user => {
+                alert(user);
+                const credential = firebase.auth.GoogleAuthProvider.credential(
+                    user.idToken,
+                    user.accessToken
+                );
+                return firebase.auth().signInWithCredential(credential);
+            })
+            .then(currentUser => {
+                console.log(
+                    `Google Login with user ${JSON.stringify(currentUser.toJSON())}`
+                );
+            })
+            .catch(err => {
+                console.log(`Login fail with error, ${err}`);
+            })
+            .done();
+    }
+    signInAsync = async () => {
         try {
             await GoogleSignIn.askForPlayServicesAsync();
             const { type, user } = await GoogleSignIn.signInAsync();
@@ -77,6 +99,8 @@ export default class GoogleApp extends React.Component {
             alert('login: Error:' + message);
         }
     };
+
+
 
     _syncUserWithStateAsync = async () => {
         /*
@@ -114,6 +138,11 @@ export default class GoogleApp extends React.Component {
             <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
                 {user && <GoogleProfile {...user} />}
                 <TouchableOpacity onPress={this._toggleAuth}>
+                    <Text>
+                        {this.buttonTitle}
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={this.signInAsync}>
                     <Text>
                         {this.buttonTitle}
                     </Text>
